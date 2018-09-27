@@ -27,7 +27,7 @@ Then the 2-nd order derivative will be: <br />
 That's the reason I upload this to github: I have done the job and coded them into the script, you can simply use it and ignore the equations! Remember to call *Xgboost_classsifier_sklearn* class and specify the parameter *special_objective* when implementing the class to an object. Also, you can change the prarameter $\alpha$ or $\gamma$ inside the script.
 
 # Enjoy Using!
-@author: Chen Wang, College of Science and Art, Rutgers University (previously affiliated with University College London, Sichuan University and Northwestern Polytechnical University) <br \>
+@author: Chen Wang, College of Science and Art, Rutgers University (previously affiliated with University College London, Sichuan University and Northwestern Polytechnical University) <br/>
 @version: 0.1
 
 ## References
