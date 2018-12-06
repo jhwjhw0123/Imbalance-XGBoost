@@ -5,7 +5,7 @@ For both of the loss functions, since the task is 2-class classification, the ac
 And below the two types of loss will be discussed respectively. <br />
 ### 1. Weighted Imbalance (Cross-entropoy) Loss
 And combining with $\hat{y}$, which are the true labels, the weighted imbalance loss for 2-class data could be denoted as: <br />
-<a href="https://www.codecogs.com/eqnedit.php?latex=l_{w}&space;=&space;\sum_{i=1}^{m}(\alpha\hat{y}_{i}\text{log}(y_{i})&plus;(1-\hat{y}_{i})\text{log}(1-y_{i})))" target="_blank"><img src="https://latex.codecogs.com/gif.latex?l_{w}&space;=&space;\sum_{i=1}^{m}(\alpha\hat{y}_{i}\text{log}(y_{i})&plus;(1-\hat{y}_{i})\text{log}(1-y_{i})))" title="l_{w} = \sum_{i=1}^{m}(\alpha\hat{y}_{i}\text{log}(y_{i})+(1-\hat{y}_{i})\text{log}(1-y_{i})))" /></a> 
+<a href="https://www.codecogs.com/eqnedit.php?latex=l_{w}&space;=&space;-\sum_{i=1}^{m}(\alpha\hat{y}_{i}\text{log}(y_{i})&plus;(1-\hat{y}_{i})\text{log}(1-y_{i})))" target="_blank"><img src="https://latex.codecogs.com/gif.latex?l_{w}&space;=&space;-\sum_{i=1}^{m}(\alpha\hat{y}_{i}\text{log}(y_{i})&plus;(1-\hat{y}_{i})\text{log}(1-y_{i})))" title="l_{w} = -\sum_{i=1}^{m}(\alpha\hat{y}_{i}\text{log}(y_{i})+(1-\hat{y}_{i})\text{log}(1-y_{i})))" /></a>
 <br />
 Where $\alpha$ is the 'imbalance factor'. And $\alpha$ value greater than 1 means to put extra loss on 'classifying 1 as 0'.<br />
 The gradient would be: <br />
