@@ -1,8 +1,9 @@
 # Xgboost-With-Imbalance-And-Focal-Loss
 This small project includes the codes of Weighted Imbalance Loss and Focal Loss [1] for Xgboost [2](<\url> https://github.com/dmlc/xgboost) in 2-class classification problems. The principal reason for us to use Weighted Imbalance Loss and Focal Loss is to address the problem of label-imbalanced data, which could significantly degrade the performance of Xgboost. The original Xgboost program provides a convinient method to customize the loss function, but one will be needing to compute the first+second order derivatives and implement them. The major contribution of the project to the drivation of the gradients and the implementations of them.<br/>
 ### Important update May/23/2019
-There was an error in the formula of the 1st- and 2nd-order derivatives of focal loss. I have corrected it with the new expression and uploaded corrected corresponding Python scripts. <br />
+**There was an error in the formula of the 1st- and 2nd-order derivatives of focal loss. I have corrected it with the new expression and uploaded corrected corresponding Python scripts.** <br />
 
+### Below goes the original instructions
 For both of the loss functions, since the task is 2-class classification, the activation would be sigmoid: <br />
 <a href="https://www.codecogs.com/eqnedit.php?latex=y_{i}&space;=&space;\frac{1}{1&plus;\text{exp}(-z_{i})}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?y_{i}&space;=&space;\frac{1}{1&plus;\text{exp}(-z_{i})}" title="y_{i} = \frac{1}{1+\text{exp}(-z_{i})}" /></a> <br />
 And below the two types of loss will be discussed respectively. <br />
