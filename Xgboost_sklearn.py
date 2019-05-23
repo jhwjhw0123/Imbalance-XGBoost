@@ -11,7 +11,7 @@ from sklearn import linear_model
 from sklearn.base import BaseEstimator, ClassifierMixin
 import collections
 
-def weighted_binary_cross_entropy(pred,dtrain,imbalance_alpha=5.0):
+def weighted_binary_cross_entropy(pred,dtrain,imbalance_alpha=6.5):
     # retrieve data from dtrain matrix
     label = dtrain.get_label()
     # compute the prediction with sigmoid
@@ -22,24 +22,30 @@ def weighted_binary_cross_entropy(pred,dtrain,imbalance_alpha=5.0):
     
     return grad, hess
 
-def focal_binary_object(pred,dtrain,gamma_indct=1.2):
+def robust_pow(num_base, num_pow):
+	# numpy does not permit negative numbers to fractional power
+	# use this to perform the power algorithmic
+	return np.sign(num_base) * (np.abs(num_base)) ** (num_pow)
+
+def focal_binary_object(pred,dtrain,gamma_indct=2.9):
     # retrieve data from dtrain matrix
     label = dtrain.get_label()
     # compute the prediction with sigmoid
     sigmoid_pred = 1.0 / (1.0 + np.exp(-pred))
     # gradient
     # complex gradient with different parts
-    grad_first_part = (label+((-1)**label)*sigmoid_pred)**gamma_indct
-    grad_second_part = label - sigmoid_pred
-    grad_third_part = gamma_indct*(1-label-sigmoid_pred)
-    grad_log_part = np.log(1-label-((-1)**label)*sigmoid_pred + 1e-7)       # add a small number to avoid numerical instability
+    g1 = sigmoid_pred * (1-sigmoid_pred) 
+    g2 = label+((-1)**label)*sigmoid_pred
+    g3 = sigmoid_pred + label - 1
+    g4 = 1 - label - ((-1)**label)*sigmoid_pred
+    g5 = label - sigmoid_pred
     # combine the gradient
-    grad = -grad_first_part*(grad_second_part+grad_third_part*grad_log_part)
-    # combine the gradient parts to get hessian
-    hess_first_term = gamma_indct*(label+((-1)**label)*sigmoid_pred)**(gamma_indct-1)*sigmoid_pred*(1.0 - sigmoid_pred)*(grad_second_part+grad_third_part*grad_log_part)
-    hess_second_term = (-sigmoid_pred*(1.0 - sigmoid_pred)-gamma_indct*sigmoid_pred*(1.0 - sigmoid_pred)*grad_log_part-((1/(1-label-((-1)**label)*sigmoid_pred))*sigmoid_pred*(1.0 - sigmoid_pred)))*grad_first_part
+    grad = gamma_indct*g3*robust_pow(g2, gamma_indct)*np.log(g4+1e-9) - robust_pow(g5, (gamma_indct+1))
+    # combine the gradient parts to get hessian components
+    hess_1 = robust_pow(g2, gamma_indct) + gamma_indct*((-1)**label)*g3*robust_pow(g2, (gamma_indct-1))
+    hess_2 = ((-1)**label)*g3*robust_pow(g2, gamma_indct)/g4
     # get the final 2nd order derivative
-    hess = -(hess_first_term+hess_second_term)
+    hess = ((hess_1*np.log(g4+1e-9)-hess_2)*gamma_indct + (gamma_indct+1)*robust_pow(g5, gamma_indct))*g1
     
     return grad, hess
 
@@ -167,7 +173,9 @@ class Xgboost_classsifier_sklearn(BaseEstimator,ClassifierMixin):
         else:
             dtest = xgb.DMatrix(data_x)
         
-        prediction_output = np.argmax(self.boosting_model.predict(dtest),axis=1)
+        raw_output = self.boosting_model.predict(dtest)
+        sigmoid_output = 1. / (1. + np.exp(-raw_output))
+        prediction_output = np.round(sigmoid_output)
         
         return prediction_output
     
