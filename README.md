@@ -4,7 +4,7 @@ This small project includes the codes of Weighted Imbalance Loss and Focal Loss 
 **There was an error in the formula of the 1st- and 2nd-order derivatives of focal loss. I have corrected it with the new expression and uploaded corrected corresponding Python scripts.** <br />
 
 ### Updates June/24/2019
-**Thanks to @shaojunchao for help correct another error. The formula and script are updated. This time the fomula change is rather insignificant, but indeed will affect the performance.** <br />
+**Thanks to @shaojunchao for help correct another error. The formula and script are updated. This time the fomula change is relatively insignificant, but indeed will affect the performance.** <br />
 
 ### Below goes the original instructions
 For both of the loss functions, since the task is 2-class classification, the activation would be sigmoid: <br />
