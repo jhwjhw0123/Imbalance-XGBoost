@@ -27,7 +27,7 @@ def robust_pow(num_base, num_pow):
 	# use this to perform the power algorithmic
 	return np.sign(num_base) * (np.abs(num_base)) ** (num_pow)
 
-def focal_binary_object(pred,dtrain,gamma_indct=2.9):
+def focal_binary_object(pred,dtrain,gamma_indct=3.0):
     # retrieve data from dtrain matrix
     label = dtrain.get_label()
     # compute the prediction with sigmoid
@@ -38,9 +38,9 @@ def focal_binary_object(pred,dtrain,gamma_indct=2.9):
     g2 = label+((-1)**label)*sigmoid_pred
     g3 = sigmoid_pred + label - 1
     g4 = 1 - label - ((-1)**label)*sigmoid_pred
-    g5 = label - sigmoid_pred
+    g5 = label + ((-1)**label)*sigmoid_pred
     # combine the gradient
-    grad = gamma_indct*g3*robust_pow(g2, gamma_indct)*np.log(g4+1e-9) - robust_pow(g5, (gamma_indct+1))
+    grad = gamma_indct*g3*robust_pow(g2, gamma_indct)*np.log(g4+1e-9) + ((-1)**label)*robust_pow(g5, (gamma_indct+1))
     # combine the gradient parts to get hessian components
     hess_1 = robust_pow(g2, gamma_indct) + gamma_indct*((-1)**label)*g3*robust_pow(g2, (gamma_indct-1))
     hess_2 = ((-1)**label)*g3*robust_pow(g2, gamma_indct)/g4
@@ -176,6 +176,20 @@ class Xgboost_classsifier_sklearn(BaseEstimator,ClassifierMixin):
         raw_output = self.boosting_model.predict(dtest)
         sigmoid_output = 1. / (1. + np.exp(-raw_output))
         prediction_output = np.round(sigmoid_output)
+        
+        return prediction_output
+
+    def predict_determine_v2(self,data_x,y=None):
+        # deterministic output
+        if y is not None:
+            try:
+                dtest = xgb.DMatrix(data_x,label=y)
+            except:
+                raise ValueError('Test data invalid!')
+        else:
+            dtest = xgb.DMatrix(data_x)
+        
+        prediction_output = np.argmax(self.boosting_model.predict(dtest),axis=1)
         
         return prediction_output
     
