@@ -6,7 +6,7 @@ This small project includes the codes of Weighted Imbalance Loss and Focal Loss 
 ### Updates June/24/2019
 **Thanks to @shaojunchao for help correct another error. The formula and script are updated. This time the fomula change is relatively insignificant, but indeed will affect the performance.** <br />
 
-### Below goes the original instructions
+### Bellow goes the original instructions
 For both of the loss functions, since the task is 2-class classification, the activation would be sigmoid: <br />
 <a href="https://www.codecogs.com/eqnedit.php?latex=y_{i}&space;=&space;\frac{1}{1&plus;\text{exp}(-z_{i})}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?y_{i}&space;=&space;\frac{1}{1&plus;\text{exp}(-z_{i})}" title="y_{i} = \frac{1}{1+\text{exp}(-z_{i})}" /></a> <br />
 And below the two types of loss will be discussed respectively. <br />
