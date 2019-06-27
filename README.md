@@ -31,7 +31,7 @@ Then the 2-nd order derivative will be: <br />
 <br />
 
 ### Scared by the above equations? It's ok
-That's the reason I upload this to github: I have done the job and coded them into the script, you can simply use it and ignore the equations! Remember to call *Xgboost_classsifier_sklearn* class and specify the parameter *special_objective* when implementing the class to an object. Also, you can change the prarameter $\alpha$ or $\gamma$ inside the script.
+That's the reason I upload this to github: I have done the job and coded them into the script, you can simply use it and ignore the equations! Remember to call *Xgboost_classsifier_sklearn* class and specify the parameter *special_objective* when implementing the class to an object. The prarameters $\alpha$ and $\gamma$ can be specified by giving a value when constructing the object, and you are able to perform validation for these parameters with the Gridsearch method of SK-learn.
 
 # Enjoy Using!
 @author: Chen Wang, Dept. of Computer Science, School of Art and Science, Rutgers University (previously affiliated with University College London, Sichuan University and Northwestern Polytechnical University) <br/>
