@@ -1,53 +1,8 @@
-import time
-import math
-import scipy
-import random
 import numpy as np
 import xgboost as xgb
-from numpy import matlib
-import sklearn as sk
-from sklearn import linear_model
-#import sklearn-based class to perform pipeline process
+from weighted_loss import Weight_Binary_Cross_Entropy
+from focal_loss import Focal_Binary_Loss
 from sklearn.base import BaseEstimator, ClassifierMixin
-import collections
-
-def weighted_binary_cross_entropy(pred,dtrain,imbalance_alpha=6.5):
-    # retrieve data from dtrain matrix
-    label = dtrain.get_label()
-    # compute the prediction with sigmoid
-    sigmoid_pred = 1.0 / (1.0 + np.exp(-pred))
-    # gradient
-    grad = -(imbalance_alpha**label)*(label - sigmoid_pred)
-    hess = (imbalance_alpha**label)*sigmoid_pred*(1.0 - sigmoid_pred)
-    
-    return grad, hess
-
-def robust_pow(num_base, num_pow):
-	# numpy does not permit negative numbers to fractional power
-	# use this to perform the power algorithmic
-	return np.sign(num_base) * (np.abs(num_base)) ** (num_pow)
-
-def focal_binary_object(pred,dtrain,gamma_indct=3.0):
-    # retrieve data from dtrain matrix
-    label = dtrain.get_label()
-    # compute the prediction with sigmoid
-    sigmoid_pred = 1.0 / (1.0 + np.exp(-pred))
-    # gradient
-    # complex gradient with different parts
-    g1 = sigmoid_pred * (1-sigmoid_pred) 
-    g2 = label+((-1)**label)*sigmoid_pred
-    g3 = sigmoid_pred + label - 1
-    g4 = 1 - label - ((-1)**label)*sigmoid_pred
-    g5 = label + ((-1)**label)*sigmoid_pred
-    # combine the gradient
-    grad = gamma_indct*g3*robust_pow(g2, gamma_indct)*np.log(g4+1e-9) + ((-1)**label)*robust_pow(g5, (gamma_indct+1))
-    # combine the gradient parts to get hessian components
-    hess_1 = robust_pow(g2, gamma_indct) + gamma_indct*((-1)**label)*g3*robust_pow(g2, (gamma_indct-1))
-    hess_2 = ((-1)**label)*g3*robust_pow(g2, gamma_indct)/g4
-    # get the final 2nd order derivative
-    hess = ((hess_1*np.log(g4+1e-9)-hess_2)*gamma_indct + (gamma_indct+1)*robust_pow(g5, gamma_indct))*g1
-    
-    return grad, hess
 
 def evalerror(preds, dtrain):
     labels = dtrain.get_label()
@@ -75,17 +30,19 @@ class Xgboost_classsifier_sklearn(BaseEstimator,ClassifierMixin):
     """Data in the form of [nData * nDim], where nDim stands for the number of features.
        This wrapper would provide a Xgboost interface with sklearn estimiator structure, which could be stacked in other Sk pipelines
     """
-    def __init__(self,num_round=10,max_depth=10,eta=0.3,silent_mode=True,objective_func='multi:softprob',eval_metric='mlogloss',booster='gbtree',special_objective=None):
+    def __init__(self,num_round=10,max_depth=10,eta=0.3,silent_mode=True,objective_func='multi:softprob',eval_metric='mlogloss',booster='gbtree',special_objective=None, imbalance_alpha=None, focal_gamma=None):
         """
         Parameters to initialize a Xgboost estimator
-        @param: num_round. The rounds we would like to iterate to train the model
-        @param: max_depth. The maximum depth of the classification boosting, need to be specified
-        @param: num_class. The number of classes for the classifier
-        @param: eta Step. Size shrinkage used in update to prevents overfitting
-        @param: silent_mode. Set to 'True' or 'False' to determine if print the information during training. True is higly recommended
-        @param: objective_func. The objective function we would like to optimize
-        @param: eval_metric. The loss metrix. Note this is partially correlated to the objective function, and unfit loss function would lead to problematic loss
-        @param: booster. The booster to be usde, can be 'gbtree', 'gblinear' or 'dart'.
+        :param num_round. The rounds we would like to iterate to train the model
+        :param max_depth. The maximum depth of the classification boosting, need to be specified
+        :param num_class. The number of classes for the classifier
+        :param eta Step. Size shrinkage used in update to prevents overfitting
+        :param silent_mode. Set to 'True' or 'False' to determine if print the information during training. True is higly recommended
+        :param objective_func. The objective function we would like to optimize
+        :param eval_metric. The loss metrix. Note this is partially correlated to the objective function, and unfit loss function would lead to problematic loss
+        :param booster. The booster to be usde, can be 'gbtree', 'gblinear' or 'dart'.
+        :param imbalance_alpha. The \alpha value for imbalanced loss. Will make impact on '1' classes. Must have when special_objective 'weighted'
+        :param focal_gamma. The \gamma value for focal loss. Must have when special_objective 'focal'
         """
         self.num_round = num_round
         self.max_depth = max_depth
@@ -97,6 +54,8 @@ class Xgboost_classsifier_sklearn(BaseEstimator,ClassifierMixin):
         self.eval_list = []
         self.boosting_model = 0
         self.special_objective = special_objective
+        self.imbalance_alpha = imbalance_alpha
+        self.focal_gamma = focal_gamma
 
 
     def fit(self,data_x,data_y,num_class):
@@ -141,11 +100,21 @@ class Xgboost_classsifier_sklearn(BaseEstimator,ClassifierMixin):
             # fit the classfifier
             self.boosting_model = xgb.train(self.para_dict, dtrain, self.num_round, self.eval_list, verbose_eval=False)
         elif self.special_objective == 'weighted':
+            # if the alpha value is None then raise an error
+            if self.imbalance_alpha is None:
+                raise ValueError('Argument imbalance_alpha must have a value when the objective is \'weighted\'!')
+            # construct the object with imbalanced alpha value
+            weighted_loss_obj = Weight_Binary_Cross_Entropy(imbalance_alpha=self.imbalance_alpha)
             # fit the classfifier
-            self.boosting_model = xgb.train(self.para_dict, dtrain, self.num_round, self.eval_list, weighted_binary_cross_entropy, evalerror, verbose_eval=False)
+            self.boosting_model = xgb.train(self.para_dict, dtrain, self.num_round, self.eval_list, weighted_loss_obj.weighted_binary_cross_entropy, evalerror, verbose_eval=False)
         elif self.special_objective == 'focal':
+            # if the gamma value is None then raise an error
+            if self.focal_gamma is None:
+                raise ValueError('Argument focal_gamma must have a value when the objective is \'focal\'!')
+            # construct the object with focal gamma value
+            focal_loss_obj = Focal_Binary_Loss(gamma_indct=self.focal_gamma)
             # fit the classfifier
-            self.boosting_model = xgb.train(self.para_dict, dtrain, self.num_round, self.eval_list, focal_binary_object, evalerror, verbose_eval=False)
+            self.boosting_model = xgb.train(self.para_dict, dtrain, self.num_round, self.eval_list, focal_loss_obj.focal_binary_object, evalerror, verbose_eval=False)
         else:
             raise ValueError('The input special objective mode not recognized! Could only be \'weighted\' or \'focal\', but got '+str(self.special_objective))
 
