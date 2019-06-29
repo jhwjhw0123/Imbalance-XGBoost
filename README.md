@@ -1,10 +1,10 @@
 # Xgboost-With-Imbalance-And-Focal-Loss
 This software includes the codes of Weighted Loss and Focal Loss [1] implementations for Xgboost [2](<\url> https://github.com/dmlc/xgboost) in binary classification problems. The principal reason for us to use Weighted and Focal Loss functions is to address the problem of label-imbalanced data. The original Xgboost program provides a convinient way to customize the loss function, but one will be needing to compute the first and second order derivatives to implement them. The major contribution of the software is the drivation of the gradients and the implementations of them. <br/>
 
-### Software Release
+## Software Release
 **The project has been posted on github for several months, and now a correponding API on Pipy is released. Special thanks to @icegrid and @shaojunchao for help correct errors in the previous versions. The codes are now updated to version 0.5 and it now allows users to specify the weighted parameter \alpha and focal parameter \gamma outside the script.** <br />
 
-### Installation
+## Installation
 Installing with Pypi will be easiest way, you can run: <br />
 
 ```
@@ -14,10 +14,39 @@ If you have multiple versions of Python, make sure you're using Python 3 (run wi
 
 The package has hard depedency on numpy, sklearn and xgboost. <br />
 
-### Usage
-Import *imbalance_xgboost* from **imbalance-xgboost** and specify the parameter *special_objective* when implementing the class to an object. The prarameters $\alpha$ and $\gamma$ can be specified by giving a value when constructing the object. The class is designed to be fully compatible with scikit-learn package, and you can treat it as a sk-learn classifier object. Commonly-used data science methods, including *GridsearchCV*, could be easily implemented with sklearn. <br />
+## Usage
+To use the wrapper, one needs to import *imbalance_xgboost* from module **imxgboost.imbalance_xgb**. An example is given as bellow: <br /> 
 
-### Theories and derivatives
+```Python
+from imxgboost.imbalance_xgb import imbalance_xgboost as imb_xgb
+```
+The specific loss function could be set through *special_objective* parameter. Specificly, one could construct a booster with: <br />
+```Python
+xgboster = imb_xgb(special_objective='focal')
+```
+for *focal loss* and <br />
+```Python
+xgboster = imb_xgb(special_objective='weighted')
+```
+for *weighted* loss. The prarameters $\alpha$ and $\gamma$ can be specified by giving a value when constructing the object. In addition, the class is designed to be compatible with scikit-learn package, and you can treat it as a sk-learn classifier object. Thus, it will be easy to use methods in Sklearn such as *GridsearchCV* to perform grid search for the parameters of focal and weighted loss functions. <br />
+```Python
+from sklearn.model_selection import GridSearchCV
+xgboster_focal = imb_xgb(special_objective='focal')
+xgboster_weight = imb_xgb(special_objective='weighted')
+best_focal_booster = GridSearchCV(xgboster_focal, {"focal_gamma":[1.0,1.5,2.0,2.5,3.0]})
+best_weight_booster = GridSearchCV(xgboster_weight, {"imbalance_alpha":[1.5,2.0,2.5,3.0,4.0]})
+```
+The data fed to the booster should be of numpy type and following the convention of: <br />
+x: [nData, nDim] <br />
+y: [nData,] <br />
+In other words, the x_input should be row-major and labels should be flat. <br />
+And finally, one needs to specify the number of classes when fitting the boosters (should always be 2 in the usage of this package): <br />
+```Python
+best_focal_booster.fit(records, labels, num_class=2)
+best_weight_booster.fit(records, labels, num_class=2)
+```
+
+## Theories and derivatives
 You don't have to understand the equations if you find they are hard to grasp, you can simply use it with the API. However, for the purpose of understanding, the derivatives of the two loss functions are listed. <br />
 For both of the loss functions, since the task is 2-class classification, the activation would be sigmoid: <br />
 <a href="https://www.codecogs.com/eqnedit.php?latex=y_{i}&space;=&space;\frac{1}{1&plus;\text{exp}(-z_{i})}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?y_{i}&space;=&space;\frac{1}{1&plus;\text{exp}(-z_{i})}" title="y_{i} = \frac{1}{1+\text{exp}(-z_{i})}" /></a> <br />
@@ -45,7 +74,7 @@ Then the 2-nd order derivative will be: <br />
 <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{150}&space;\frac{\partial^{2}&space;L}{\partial&space;z_{i}^{2}}&space;=&space;g_{1}\{\gamma[(g_2^{\gamma}&plus;\gamma&space;(-1)^{\hat{y}_{i}}g_3&space;g_2^{\gamma&space;-&space;1})\text{log}(g_4)-\frac{(-1)^{\hat{y}_i}g_3&space;g_2^{\gamma}}{g_4}]&space;&plus;&space;(\gamma&plus;1)g_5^{\gamma}\}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{150}&space;\frac{\partial^{2}&space;L}{\partial&space;z_{i}^{2}}&space;=&space;g_{1}\{\gamma[(g_2^{\gamma}&plus;\gamma&space;(-1)^{\hat{y}_{i}}g_3&space;g_2^{\gamma&space;-&space;1})\text{log}(g_4)-\frac{(-1)^{\hat{y}_i}g_3&space;g_2^{\gamma}}{g_4}]&space;&plus;&space;(\gamma&plus;1)g_5^{\gamma}\}" title="\frac{\partial^{2} L}{\partial z_{i}^{2}} = g_{1}\{\gamma[(g_2^{\gamma}+\gamma (-1)^{\hat{y}_{i}}g_3 g_2^{\gamma - 1})\text{log}(g_4)-\frac{(-1)^{\hat{y}_i}g_3 g_2^{\gamma}}{g_4}] + (\gamma+1)g_5^{\gamma}\}" /></a>
 <br />
 
-# Enjoy Using!
+## Enjoy Using!
 @author: Chen Wang, Dept. of Computer Science, School of Art and Science, Rutgers University (previously affiliated with University College London, Sichuan University and Northwestern Polytechnical University) <br/>
 @version: 0.5
 
