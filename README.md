@@ -4,6 +4,10 @@ This small project includes the codes of Weighted Imbalance Loss and Focal Loss 
 ### Updates June/27/2019
 **Special thank to @icegrid and @shaojunchao for help correct errors in the previous versions. The codes are now updated to version 0.5 and it now allows users to specify the weighted parameter \alpha and focal parameter \gamma outside the script. An API might be released later.** <br />
 
+```
+pip install something
+```
+
 For both of the loss functions, since the task is 2-class classification, the activation would be sigmoid: <br />
 <a href="https://www.codecogs.com/eqnedit.php?latex=y_{i}&space;=&space;\frac{1}{1&plus;\text{exp}(-z_{i})}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?y_{i}&space;=&space;\frac{1}{1&plus;\text{exp}(-z_{i})}" title="y_{i} = \frac{1}{1+\text{exp}(-z_{i})}" /></a> <br />
 And below the two types of loss will be discussed respectively. <br />
