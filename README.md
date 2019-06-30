@@ -33,17 +33,19 @@ for *weighted* loss. The prarameters $\alpha$ and $\gamma$ can be specified by g
 from sklearn.model_selection import GridSearchCV
 xgboster_focal = imb_xgb(special_objective='focal')
 xgboster_weight = imb_xgb(special_objective='weighted')
-best_focal_booster = GridSearchCV(xgboster_focal, {"focal_gamma":[1.0,1.5,2.0,2.5,3.0]})
-best_weight_booster = GridSearchCV(xgboster_weight, {"imbalance_alpha":[1.5,2.0,2.5,3.0,4.0]})
+CV_focal_booster = GridSearchCV(xgboster_focal, {"focal_gamma":[1.0,1.5,2.0,2.5,3.0]})
+CV_weight_booster = GridSearchCV(xgboster_weight, {"imbalance_alpha":[1.5,2.0,2.5,3.0,4.0]})
 ```
 The data fed to the booster should be of numpy type and following the convention of: <br />
 x: [nData, nDim] <br />
 y: [nData,] <br />
 In other words, the x_input should be row-major and labels should be flat. <br />
-And finally, one needs to specify the number of classes when fitting the boosters (should always be 2 in the usage of this package): <br />
+And finally, one could fit the data with Cross-validation and retreive the optimal model: <br />
 ```Python
-best_focal_booster.fit(records, labels, num_class=2)
-best_weight_booster.fit(records, labels, num_class=2)
+CV_focal_booster.fit(records, labels)
+CV_weight_booster.fit(records, labels)
+opt_focal_booster = CV_focal_booster.best_estimator_
+opt_weight_booster = CV_weight_booster.best_estimator_
 ```
 
 ## Theories and derivatives
