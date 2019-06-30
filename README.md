@@ -2,7 +2,7 @@
 This software includes the codes of Weighted Loss and Focal Loss [1] implementations for Xgboost [2](<\url> https://github.com/dmlc/xgboost) in binary classification problems. The principal reason for us to use Weighted and Focal Loss functions is to address the problem of label-imbalanced data. The original Xgboost program provides a convinient way to customize the loss function, but one will be needing to compute the first and second order derivatives to implement them. The major contribution of the software is the drivation of the gradients and the implementations of them. <br/>
 
 ## Software Release
-**The project has been posted on github for several months, and now a correponding API on Pipy is released. Special thanks to @icegrid and @shaojunchao for help correct errors in the previous versions. The codes are now updated to version 0.5 and it now allows users to specify the weighted parameter \alpha and focal parameter \gamma outside the script.** <br />
+**The project has been posted on github for several months, and now a correponding API on Pipy is released. Special thanks to @icegrid and @shaojunchao for help correct errors in the previous versions. The codes are now updated to version 0.6 and it now allows users to specify the weighted parameter \alpha and focal parameter \gamma outside the script.** <br />
 
 ## Installation
 Installing with Pypi will be easiest way, you can run: <br />
@@ -78,7 +78,7 @@ Then the 2-nd order derivative will be: <br />
 
 ## Enjoy Using!
 @author: Chen Wang, Dept. of Computer Science, School of Art and Science, Rutgers University (previously affiliated with University College London, Sichuan University and Northwestern Polytechnical University) <br/>
-@version: 0.5
+@version: 0.6
 
 ## References
 [1] Lin, Tsung-Yi, Priyal Goyal, Ross Girshick, Kaiming He, and Piotr Dollár. "Focal loss for dense object detection." IEEE transactions on pattern analysis and machine intelligence (2018). <br/>
