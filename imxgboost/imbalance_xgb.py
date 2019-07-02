@@ -1,7 +1,9 @@
+import sys
+sys.path.append("..")
 import numpy as np
 import xgboost as xgb
-from weighted_loss import Weight_Binary_Cross_Entropy
-from focal_loss import Focal_Binary_Loss
+from imxgboost.weighted_loss import Weight_Binary_Cross_Entropy
+from imxgboost.focal_loss import Focal_Binary_Loss
 from sklearn.base import BaseEstimator, ClassifierMixin
 
 def evalerror(preds, dtrain):
