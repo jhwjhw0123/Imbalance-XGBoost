@@ -15,7 +15,7 @@ If you have multiple versions of Python, make sure you're using Python 3 (run wi
 The package has hard depedency on numpy, sklearn and xgboost. <br />
 
 ## Usage
-To use the wrapper, one needs to import *imbalance_xgboost* from module **imxgboost.imbalance_xgb**. An example is given as below: <br /> 
+To use the wrapper, one needs to import *imbalance_xgboost* from module **imxgboost.imbalance_xgb**. An example is given as bellow: <br /> 
 
 ```Python
 from imxgboost.imbalance_xgb import imbalance_xgboost as imb_xgb
