@@ -119,6 +119,7 @@ class imbalance_xgboost(BaseEstimator,ClassifierMixin):
         else:
             raise ValueError('The input special objective mode not recognized! Could only be \'weighted\' or \'focal\', but got '+str(self.special_objective))
 
+
     def predict(self,data_x,y=None):
         # matrixilize
         if y is not None:
@@ -132,35 +133,26 @@ class imbalance_xgboost(BaseEstimator,ClassifierMixin):
         prediction_output = self.boosting_model.predict(dtest)
         
         return prediction_output
+
+    def predict_sigmoid(self,data_x, y=None):
+        # sigmoid output, for the prob = 1
+
+        raw_output = self.predict(data_x, y)
+        sigmoid_output = 1. / (1. + np.exp(-raw_output))
+
+        return sigmoid_output
     
     def predict_determine(self,data_x,y=None):
         # deterministic output
-        if y is not None:
-            try:
-                dtest = xgb.DMatrix(data_x,label=y)
-            except:
-                raise ValueError('Test data invalid!')
-        else:
-            dtest = xgb.DMatrix(data_x)
-        
-        raw_output = self.boosting_model.predict(dtest)
-        sigmoid_output = 1. / (1. + np.exp(-raw_output))
+        sigmoid_output = self.predict_sigmoid(data_x, y)
         prediction_output = np.round(sigmoid_output)
         
         return prediction_output
 
-    def predict_determine_v2(self,data_x,y=None):
-        # deterministic output
-        if y is not None:
-            try:
-                dtest = xgb.DMatrix(data_x,label=y)
-            except:
-                raise ValueError('Test data invalid!')
-        else:
-            dtest = xgb.DMatrix(data_x)
-        
-        prediction_output = np.argmax(self.boosting_model.predict(dtest),axis=1)
-        
+    def predict_two_class(self, data_x, y=None):
+        # predict the probability of two classes
+        prediction_output = two_class_encoding(self.predict(data_x, y))
+
         return prediction_output
     
     def score(self, data_x, y):
