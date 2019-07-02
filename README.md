@@ -47,6 +47,33 @@ CV_weight_booster.fit(records, labels)
 opt_focal_booster = CV_focal_booster.best_estimator_
 opt_weight_booster = CV_weight_booster.best_estimator_
 ```
+After getting the optimal booster, one will be able to make predictions. There are following methods to make predictions with imabalnce-xgboost: <br />
+Method `predict` <br />
+```Python
+raw_output = opt_focal_booster.predict(data_x, y=None) 
+```
+This will return the value of 'zi' before applying sigmoid.  <br />
+Method `predict_sigmoid` <br />
+```Python
+sigmoid_output = opt_focal_booster.predict_sigmoid(data_x, y=None) 
+```
+This will return the \hat{y} value, which is p(y=1|x) for 2-lcass classification.  <br />
+Method `predict_determine` <br />
+```Python
+class_output = opt_focal_booster.predict_determine(data_x, y=None) 
+```
+This will return the predicted logit, which 0 or 1 in the 2-class scenario.  <br />
+Method `predict_two_class` <br />
+```Python
+class_output = opt_focal_booster.predict_two_class(data_x, y=None) 
+```
+This will return the predicted probability of 2 classes, in the form of [nData * 2]. The first column is the probability of classifying the datapoint to 0 and the second column is the prob of classifying as 1. <br />
+
+```
+CV_weight_booster.fit(records, labels)
+opt_focal_booster = CV_focal_booster.best_estimator_
+opt_weight_booster = CV_weight_booster.best_estimator_
+```
 
 ## Theories and derivatives
 You don't have to understand the equations if you find they are hard to grasp, you can simply use it with the API. However, for the purpose of understanding, the derivatives of the two loss functions are listed. <br />
