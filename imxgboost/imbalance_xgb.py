@@ -5,7 +5,7 @@ import xgboost as xgb
 from imxgboost.weighted_loss import Weight_Binary_Cross_Entropy
 from imxgboost.focal_loss import Focal_Binary_Loss
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.metrics import precision_score, recall_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, matthews_corrcoef
 
 def evalerror(preds, dtrain):
     labels = dtrain.get_label()
@@ -156,23 +156,21 @@ class imbalance_xgboost(BaseEstimator,ClassifierMixin):
 
         return prediction_output
     
-    def score(self, X, y, sample_weight=None):
-        prob_pred = two_class_encoding(self.predict(X))
-        label_pred = np.argmax(prob_pred,axis=1)
-        accu_pred = np.sum(np.equal(label_pred,y))/label_pred.shape[0]
+    def score_func(self, y_true, y_pred, mode='accuracy'):
+        prob_pred = two_class_encoding(y_pred)
+        label_pred = np.argmax(prob_pred, axis=1)
+        if mode=='accuracy':
+            score_pred = accuracy_score(y_true=y_true, y_pred=label_pred)
+        elif mode == 'precision':
+            score_pred = precision_score(y_true=y_true, y_pred=label_pred)
+        elif mode == 'recall':
+            score_pred = recall_score(y_true=y_true, y_pred=label_pred)
+        elif mode == 'f1':
+            score_pred = f1_score(y_true=y_true, y_pred=label_pred)
+        elif mode == 'MCC':
+            score_pred = matthews_corrcoef(y_true=y_true, y_pred=label_pred)
+        else:
+            raise ValueError('Score function mode unrecognized! Must from one in the list '
+                             '[\'accuracy\', \'precision\',\'recall\',\'f1\',\'MCC\']')
         
-        return accu_pred
-
-    def score_precision(self, X, y, sample_weight=None):
-        label_pred = np.round(self.predict_sigmoid(X))
-        # compute precision score
-        prec_pred = precision_score(y_true=y, y_pred=label_pred)
-
-        return prec_pred
-
-    def score_recall(self, X, y, sample_weight=None):
-        label_pred = np.round(self.predict_sigmoid(X))
-        # compute recall score
-        rec_pred = recall_score(y_true=y, y_pred=label_pred)
-
-        return rec_pred
+        return score_pred
