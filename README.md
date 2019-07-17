@@ -4,6 +4,9 @@ This software includes the codes of Weighted Loss and Focal Loss [1] implementat
 ## Software Release
 **The project has been posted on github for several months, and now a correponding API on Pypi is released. Special thanks to @icegrid and @shaojunchao for help correct errors in the previous versions. The codes are now updated to version 0.7 and it now allows users to specify the weighted parameter \alpha and focal parameter \gamma outside the script. Also it supports higher version of XGBoost now.** <br />
 
+## Version Notification
+**From version 0.7.0 on Imbalance-XGBoost starts to support higher versions of XGBoost and removes supports of previous versions (XGBoost>=0.7). This contradicts with the previous requirement of XGBoost<=0.4a30. Please choose the version fits your system accordingly.**
+
 ## Installation
 Installing with Pypi will be easiest way, you can run: <br />
 
