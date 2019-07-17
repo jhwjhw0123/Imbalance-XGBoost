@@ -5,6 +5,7 @@ import xgboost as xgb
 from imxgboost.weighted_loss import Weight_Binary_Cross_Entropy
 from imxgboost.focal_loss import Focal_Binary_Loss
 from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.metrics import precision_score, recall_score
 
 def evalerror(preds, dtrain):
     labels = dtrain.get_label()
@@ -155,9 +156,23 @@ class imbalance_xgboost(BaseEstimator,ClassifierMixin):
 
         return prediction_output
     
-    def score(self, data_x, y):
-        prob_pred = two_class_encoding(self.predict(data_x))
+    def score(self, X, y, sample_weight=None):
+        prob_pred = two_class_encoding(self.predict(X))
         label_pred = np.argmax(prob_pred,axis=1)
         accu_pred = np.sum(np.equal(label_pred,y))/label_pred.shape[0]
         
         return accu_pred
+
+    def score_precision(self, X, y, sample_weight=None):
+        label_pred = np.round(self.predict_sigmoid(X))
+        # compute precision score
+        prec_pred = precision_score(y_true=y, y_pred=label_pred)
+
+        return prec_pred
+
+    def score_recall(self, X, y, sample_weight=None):
+        label_pred = np.round(self.predict_sigmoid(X))
+        # compute recall score
+        rec_pred = recall_score(y_true=y, y_pred=label_pred)
+
+        return rec_pred
