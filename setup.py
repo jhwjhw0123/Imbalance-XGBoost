@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="imbalance-xgboost",
-    version="0.7.0",
+    version="0.7.2",
     author="Chen Wang",
     author_email="chen.wang.cs@rutgers.edu",
     description="XGBoost for label-imbalanced data: XGBoost with weighted and focal loss functions",
@@ -25,5 +25,5 @@ setuptools.setup(
     ],
     include_package_data = True,
     license = "MIT",
-    install_requires = ["numpy>=1.11", 'scikit-learn>=0.19', 'xgboost>=0.7'],
+    install_requires = ["numpy>=1.11", 'scikit-learn>=0.19', 'xgboost>=0.4a30'],
 )

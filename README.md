@@ -5,7 +5,7 @@ This software includes the codes of Weighted Loss and Focal Loss [1] implementat
 **The project has been posted on github for several months, and now a correponding API on Pypi is released. Special thanks to @icegrid and @shaojunchao for help correct errors in the previous versions. The codes are now updated to version 0.7 and it now allows users to specify the weighted parameter \alpha and focal parameter \gamma outside the script. Also it supports higher version of XGBoost now.** <br />
 
 ## Version Notification
-**From version 0.7.0 on Imbalance-XGBoost starts to support higher versions of XGBoost and removes supports of previous versions (XGBoost>=0.7). This contradicts with the previous requirement of XGBoost<=0.4a30. Please choose the version fits your system accordingly.**
+**From version 0.7.0 on Imbalance-XGBoost starts to support higher versions of XGBoost and removes supports of versions earlier than 0.4a30(XGBoost>=0.4a30). This contradicts with the previous requirement of XGBoost<=0.4a30. Please choose the version fits your system accordingly.**
 
 ## Installation
 Installing with Pypi will be easiest way, you can run: <br />
@@ -71,7 +71,25 @@ Method `predict_two_class` <br />
 prob_output = opt_focal_booster.predict_two_class(data_x, y=None) 
 ```
 This will return the predicted probability of 2 classes, in the form of [nData * 2]. The first column is the probability of classifying the datapoint to 0 and the second column is the prob of classifying as 1. <br />
-
+To assistant the evluation of classification results, the package provides a score function `score_eval_func()` with multiple metrics. One can use `make_scorer()` method in sk-learn and `functools` to specify the evaluation score. The method will be compatible with sk-learn cross validation and model selection processes. <br />
+```Python
+import functools
+from sklearn.metrics import make_scorer
+from sklearn.model_selection import LeaveOneOut, cross_validate
+# retrieve the best parameters
+xgboost_opt_param = CV_focal_booster.best_params_
+# instantialize an imbalance-xgboost instance
+xgboost_opt = imb_xgb(special_objective='focal', **xgboost_opt_param)
+# cross-validation
+# initialize the splitter
+loo_splitter = LeaveOneOut()
+# initialize the score evalutation function by feeding the 'mode' argument
+# 'mode' can be [\'accuracy\', \'precision\',\'recall\',\'f1\',\'MCC\']
+score_eval_func = functools.partial(xgboost_opt.score_eval_func, mode='accuracy')
+# Leave-One cross validation
+loo_info_dict = cross_validate(xgboost_opt, X=x, y=y, cv=loo_splitter, scoring=make_scorer(score_eval_func))
+```
+More soring function may be added in later versions.
 
 ## Theories and derivatives
 You don't have to understand the equations if you find they are hard to grasp, you can simply use it with the API. However, for the purpose of understanding, the derivatives of the two loss functions are listed. <br />
@@ -103,7 +121,7 @@ Then the 2-nd order derivative will be: <br />
 
 ## Enjoy Using!
 @author: Chen Wang, Dept. of Computer Science, School of Art and Science, Rutgers University (previously affiliated with University College London, Sichuan University and Northwestern Polytechnical University) <br/>
-@version: 0.7
+@version: 0.7.2
 
 ## References
 [1] Lin, Tsung-Yi, Priyal Goyal, Ross Girshick, Kaiming He, and Piotr Dollár. "Focal loss for dense object detection." IEEE transactions on pattern analysis and machine intelligence (2018). <br/>
