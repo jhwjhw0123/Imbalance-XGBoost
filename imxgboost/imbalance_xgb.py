@@ -155,8 +155,14 @@ class imbalance_xgboost(BaseEstimator,ClassifierMixin):
         prediction_output = two_class_encoding(self.predict(data_x, y))
 
         return prediction_output
+
+    def score(self, X, y, sample_weight=None):
+        label_pred = self.predict_determine(data_x=X)
+        score_pred = accuracy_score(y_true=y, y_pred=label_pred)
+
+        return score_pred
     
-    def score_func(self, y_true, y_pred, mode='accuracy'):
+    def score_eval_func(self, y_true, y_pred, mode='accuracy'):
         prob_pred = two_class_encoding(y_pred)
         label_pred = np.argmax(prob_pred, axis=1)
         if mode=='accuracy':
