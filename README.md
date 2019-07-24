@@ -89,6 +89,23 @@ score_eval_func = functools.partial(xgboost_opt.score_eval_func, mode='accuracy'
 # Leave-One cross validation
 loo_info_dict = cross_validate(xgboost_opt, X=x, y=y, cv=loo_splitter, scoring=make_scorer(score_eval_func))
 ```
+In the new version, we can also collect the information of the confusion matrix through the `correct_eval_func` provided. This enables the users to evluate the metrics like accuracy, precision, and recall for the average/overall test sets in the cross-validation process. <br />
+```Python
+# initialize the correctness evalutation function by feeding the 'mode' argument
+# 'mode' can be ['TP', 'TN', 'FP', 'FN']
+TP_eval_func = functools.partial(xgboost_opt.score_eval_func, mode='TP')
+TN_eval_func = functools.partial(xgboost_opt.score_eval_func, mode='FP')
+FP_eval_func = functools.partial(xgboost_opt.score_eval_func, mode='TN')
+FN_eval_func = functools.partial(xgboost_opt.score_eval_func, mode='FN')
+# define the score function dictionary
+score_dict = {'TP': make_scorer(TP_eval_func), 
+              'FP': make_scorer(TN_eval_func), 
+              'TN': make_scorer(FP_eval_func), 
+              'FN': make_scorer(FN_eval_func)}
+# Leave-One cross validation
+loo_info_dict = cross_validate(xgboost_opt, X=x, y=y, cv=loo_splitter, scoring=score_dict)
+overall_tp = np.sum(loo_info_dict['test_TP']).astype('float')
+```
 More soring function may be added in later versions.
 
 ## Theories and derivatives
@@ -121,7 +138,7 @@ Then the 2-nd order derivative will be: <br />
 
 ## Enjoy Using!
 @author: Chen Wang, Dept. of Computer Science, School of Art and Science, Rutgers University (previously affiliated with University College London, Sichuan University and Northwestern Polytechnical University) <br/>
-@version: 0.7.2
+@version: 0.7.4
 
 ## References
 [1] Lin, Tsung-Yi, Priyal Goyal, Ross Girshick, Kaiming He, and Piotr Dollár. "Focal loss for dense object detection." IEEE transactions on pattern analysis and machine intelligence (2018). <br/>
