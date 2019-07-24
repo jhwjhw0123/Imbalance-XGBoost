@@ -31,13 +31,14 @@ class Focal_Binary_Loss:
         g4 = 1 - label - ((-1) ** label) * sigmoid_pred
         g5 = label + ((-1) ** label) * sigmoid_pred
         # combine the gradient
-        grad = gamma_indct * g3 * self.robust_pow(g2, gamma_indct) * np.log(g4 + 1e-9) + ((-1) ** label) * self.robust_pow(g5, (
-        gamma_indct + 1))
+        grad = gamma_indct * g3 * self.robust_pow(g2, gamma_indct) * np.log(g4 + 1e-9) + \
+               ((-1) ** label) * self.robust_pow(g5, (gamma_indct + 1))
         # combine the gradient parts to get hessian components
-        hess_1 = self.robust_pow(g2, gamma_indct) + gamma_indct * ((-1) ** label) * g3 * self.robust_pow(g2, (gamma_indct - 1))
+        hess_1 = self.robust_pow(g2, gamma_indct) + \
+                 gamma_indct * ((-1) ** label) * g3 * self.robust_pow(g2, (gamma_indct - 1))
         hess_2 = ((-1) ** label) * g3 * self.robust_pow(g2, gamma_indct) / g4
         # get the final 2nd order derivative
-        hess = ((hess_1 * np.log(g4 + 1e-9) - hess_2) * gamma_indct + (gamma_indct + 1) * self.robust_pow(g5,
-                                                                                                     gamma_indct)) * g1
+        hess = ((hess_1 * np.log(g4 + 1e-9) - hess_2) * gamma_indct +
+                (gamma_indct + 1) * self.robust_pow(g5, gamma_indct)) * g1
 
         return grad, hess

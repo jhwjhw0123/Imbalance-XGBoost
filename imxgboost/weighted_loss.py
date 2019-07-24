@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Weight_Binary_Cross_Entropy:
     '''
     The class of binary cross entropy loss, allows the users to change the weight parameter
