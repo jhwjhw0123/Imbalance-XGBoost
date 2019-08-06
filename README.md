@@ -137,6 +137,17 @@ Then the 2-nd order derivative will be: <br />
 <br />
 
 ## Enjoy Using!
+If you use this package in your research please cite our paper: <br />
+```
+@misc{wang2019imbalancexgboost,
+    title={Imbalance-XGBoost: Leveraging Weighted and Focal Losses for Binary Label-Imbalanced Classification with XGBoost},
+    author={Chen Wang and Chengyuan Deng and Suzhen Wang},
+    year={2019},
+    eprint={1908.01672},
+    archivePrefix={arXiv},
+    primaryClass={cs.LG}
+}
+```
 @author: Chen Wang, Dept. of Computer Science, School of Art and Science, Rutgers University (previously affiliated with University College London, Sichuan University and Northwestern Polytechnical University) <br/>
 @version: 0.7.4
 
