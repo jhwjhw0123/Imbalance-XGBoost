@@ -136,7 +136,7 @@ Then the 2-nd order derivative will be: <br />
 <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{150}&space;\frac{\partial^{2}&space;L}{\partial&space;z_{i}^{2}}&space;=&space;g_{1}\{\gamma[(g_2^{\gamma}&plus;\gamma&space;(-1)^{\hat{y}_{i}}g_3&space;g_2^{\gamma&space;-&space;1})\text{log}(g_4)-\frac{(-1)^{\hat{y}_i}g_3&space;g_2^{\gamma}}{g_4}]&space;&plus;&space;(\gamma&plus;1)g_5^{\gamma}\}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{150}&space;\frac{\partial^{2}&space;L}{\partial&space;z_{i}^{2}}&space;=&space;g_{1}\{\gamma[(g_2^{\gamma}&plus;\gamma&space;(-1)^{\hat{y}_{i}}g_3&space;g_2^{\gamma&space;-&space;1})\text{log}(g_4)-\frac{(-1)^{\hat{y}_i}g_3&space;g_2^{\gamma}}{g_4}]&space;&plus;&space;(\gamma&plus;1)g_5^{\gamma}\}" title="\frac{\partial^{2} L}{\partial z_{i}^{2}} = g_{1}\{\gamma[(g_2^{\gamma}+\gamma (-1)^{\hat{y}_{i}}g_3 g_2^{\gamma - 1})\text{log}(g_4)-\frac{(-1)^{\hat{y}_i}g_3 g_2^{\gamma}}{g_4}] + (\gamma+1)g_5^{\gamma}\}" /></a>
 <br />
 
-## Paper Reference
+## Paper Citation
 If you use this package in your research please cite our paper: <br />
 ```
 @misc{wang2019imbalancexgboost,
