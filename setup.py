@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="imbalance-xgboost",
-    version="0.7.4",
+    version="0.8.0",
     author="Chen Wang",
     author_email="chen.wang.cs@rutgers.edu",
     description="XGBoost for label-imbalanced data: XGBoost with weighted and focal loss functions",
