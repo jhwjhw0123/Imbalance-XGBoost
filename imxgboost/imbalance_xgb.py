@@ -35,8 +35,8 @@ class imbalance_xgboost(BaseEstimator, ClassifierMixin):
        This wrapper would provide a Xgboost interface with sklearn estimiator structure, which could be stacked in other Sk pipelines
     """
 
-    def __init__(self, num_round=10, max_depth=10, eta=0.3, silent_mode=True, objective_func='binary:logitraw',
-                 eval_metric='logloss', booster='gbtree', special_objective=None, imbalance_alpha=None,
+    def __init__(self, num_round=10, max_depth=10, eta=0.3, verbosity=1, objective_func='binary:logitraw',
+                 eval_metric='logloss', booster='gbtree', special_objective=None, early_stopping_rounds=None, imbalance_alpha=None,
                  focal_gamma=None):
         """
         Parameters to initialize a Xgboost estimator
@@ -44,7 +44,7 @@ class imbalance_xgboost(BaseEstimator, ClassifierMixin):
         :param max_depth. The maximum depth of the classification boosting, need to be specified
         :param num_class. The number of classes for the classifier
         :param eta Step. Size shrinkage used in update to prevents overfitting
-        :param silent_mode. Set to 'True' or 'False' to determine if print the information during training. True is higly recommended
+        :param verbosity. Set to '1' or '0' to determine if print the information during training. True is higly recommended
         :param objective_func. The objective function we would like to optimize
         :param eval_metric. The loss metrix. Note this is partially correlated to the objective function, and unfit loss function would lead to problematic loss
         :param booster. The booster to be usde, can be 'gbtree', 'gblinear' or 'dart'.
@@ -54,13 +54,14 @@ class imbalance_xgboost(BaseEstimator, ClassifierMixin):
         self.num_round = num_round
         self.max_depth = max_depth
         self.eta = eta
-        self.silent_mode = silent_mode
+        self.verbosity = verbosity
         self.objective_func = objective_func
         self.eval_metric = eval_metric
         self.booster = booster
         self.eval_list = []
         self.boosting_model = 0
         self.special_objective = special_objective
+        self.early_stopping_rounds = early_stopping_rounds
         self.imbalance_alpha = imbalance_alpha
         self.focal_gamma = focal_gamma
 
@@ -69,7 +70,7 @@ class imbalance_xgboost(BaseEstimator, ClassifierMixin):
             # get the parameter list
             self.para_dict = {'max_depth': self.max_depth,
                               'eta': self.eta,
-                              'silent': self.silent_mode,
+                              'verbosity': self.verbosity,
                               'objective': self.objective_func,
                               'eval_metric': self.eval_metric,
                               'booster': self.booster}
@@ -77,7 +78,7 @@ class imbalance_xgboost(BaseEstimator, ClassifierMixin):
             # get the parameter list, without stating the objective function
             self.para_dict = {'max_depth': self.max_depth,
                               'eta': self.eta,
-                              'silent': self.silent_mode,
+                              'verbosity': self.verbosity,
                               'eval_metric': self.eval_metric,
                               'booster': self.booster}
         # make sure data is in [nData * nSample] format
@@ -103,7 +104,7 @@ class imbalance_xgboost(BaseEstimator, ClassifierMixin):
         self.eval_list = [(dvalid, 'valid'), (dtrain, 'train')]
         if self.special_objective is None:
             # fit the classfifier
-            self.boosting_model = xgb.train(self.para_dict, dtrain, self.num_round, self.eval_list, verbose_eval=False)
+            self.boosting_model = xgb.train(self.para_dict, dtrain, self.num_round, self.eval_list, verbose_eval=False, early_stopping_rounds=self.early_stopping_rounds)
         elif self.special_objective == 'weighted':
             # if the alpha value is None then raise an error
             if self.imbalance_alpha is None:
@@ -113,7 +114,7 @@ class imbalance_xgboost(BaseEstimator, ClassifierMixin):
             # fit the classfifier
             self.boosting_model = xgb.train(self.para_dict, dtrain, self.num_round, self.eval_list,
                                             obj=weighted_loss_obj.weighted_binary_cross_entropy, feval=evalerror,
-                                            verbose_eval=False)
+                                            verbose_eval=False, early_stopping_rounds=self.early_stopping_rounds)
         elif self.special_objective == 'focal':
             # if the gamma value is None then raise an error
             if self.focal_gamma is None:
@@ -122,7 +123,7 @@ class imbalance_xgboost(BaseEstimator, ClassifierMixin):
             focal_loss_obj = Focal_Binary_Loss(gamma_indct=self.focal_gamma)
             # fit the classfifier
             self.boosting_model = xgb.train(self.para_dict, dtrain, self.num_round, self.eval_list,
-                                            obj=focal_loss_obj.focal_binary_object, feval=evalerror, verbose_eval=False)
+                                            obj=focal_loss_obj.focal_binary_object, feval=evalerror, verbose_eval=False, early_stopping_rounds=self.early_stopping_rounds)
         else:
             raise ValueError(
                 'The input special objective mode not recognized! Could only be \'weighted\' or \'focal\', but got ' + str(

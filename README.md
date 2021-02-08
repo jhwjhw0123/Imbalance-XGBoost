@@ -1,19 +1,23 @@
 # Imbalance-Xgboost
 This software includes the codes of Weighted Loss and Focal Loss [1] implementations for Xgboost [2](<\url> https://github.com/dmlc/xgboost) in binary classification problems. The principal reason for us to use Weighted and Focal Loss functions is to address the problem of label-imbalanced data. The original Xgboost program provides a convinient way to customize the loss function, but one will be needing to compute the first and second order derivatives to implement them. The major contribution of the software is the drivation of the gradients and the implementations of them. <br/>
 
-## Software Release
-**The project has been posted on github for several months, and now a correponding API on Pypi is released. Special thanks to @icegrid and @shaojunchao for help correct errors in the previous versions. The codes are now updated to version 0.7 and it now allows users to specify the weighted parameter \alpha and focal parameter \gamma outside the script. Also it supports higher version of XGBoost now.** <br />
+<!-- ## Software Update
+**The project has been posted on github for several months, and now a correponding API on Pypi is released. Special thanks to @icegrid and @shaojunchao for help correct errors in the previous versions. The codes are now updated to version 0.7 and it now allows users to specify the weighted parameter \alpha and focal parameter \gamma outside the script. Also it supports higher version of XGBoost now.** <br /> -->
+
+## Software Update
+**Version 0.8.1: The package now supports early stopping, you can specify this by `early_stopping_rounds` when initializing the object.**
 
 ## Version Notification
-**From version 0.7.0 on Imbalance-XGBoost starts to support higher versions of XGBoost and removes supports of versions earlier than 0.4a30(XGBoost>=0.4a30). This contradicts with the previous requirement of XGBoost<=0.4a30. Please choose the version fits your system accordingly.**
+**From version 0.7.0 on Imbalance-XGBoost starts to support higher versions of XGBoost and removes supports of versions earlier than 0.4a30(XGBoost>=0.4a30). This contradicts with the previous requirement of XGBoost<=0.4a30. Please choose the version that fits your system accordingly.** <br />
+**Starting from version 0.8.1, the package now requires xgboost to have a newer version of >=1.1.1. This is due to some changes on deprecated arguments of the XGBoost.**
 
 ## Installation
-Installing with Pypi will be easiest way, you can run: <br />
+Installing with Pypi is the easiest way, you can run: <br />
 
 ```
 pip install imbalance-xgboost
 ```
-If you have multiple versions of Python, make sure you're using Python 3 (run with `pip3 install imbalance-xgboost`). Currently, the program only supports Python 3.5 and 3.6. <br />
+If you have multiple versions of Python, make sure you're using Python 3 (run with `pip3 install imbalance-xgboost`). The program are designated for Python 3.5 and 3.6. That being said, an (incomplete) test does not find any compatible issue on Python 3.7 and 3.8. <br />
 
 The package has hard depedency on numpy, sklearn and xgboost. <br />
 
@@ -150,7 +154,7 @@ If you use this package in your research please cite our paper: <br />
 ```
 **More information on the software**: <br />
 @author: Chen Wang, Dept. of Computer Science, School of Art and Science, Rutgers University (previously affiliated with University College London, Sichuan University and Northwestern Polytechnical University) <br/>
-@version: 0.7.4
+@version: 0.8.1
 
 ## References
 [1] Lin, Tsung-Yi, Priyal Goyal, Ross Girshick, Kaiming He, and Piotr Dollár. "Focal loss for dense object detection." IEEE transactions on pattern analysis and machine intelligence (2018). <br/>
