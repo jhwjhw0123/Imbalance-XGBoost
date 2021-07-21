@@ -4,6 +4,7 @@ from imxgboost.weighted_loss import Weight_Binary_Cross_Entropy
 from imxgboost.focal_loss import Focal_Binary_Loss
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, matthews_corrcoef
+from sklearn.model_selection import train_test_split
 
 
 def evalerror(preds, dtrain):
@@ -37,19 +38,19 @@ class imbalance_xgboost(BaseEstimator, ClassifierMixin):
 
     def __init__(self, num_round=10, max_depth=10, eta=0.3, verbosity=1, objective_func='binary:logitraw',
                  eval_metric='logloss', booster='gbtree', special_objective=None, early_stopping_rounds=None, imbalance_alpha=None,
-                 focal_gamma=None):
+                 focal_gamma=None, verbose_eval=False):
         """
         Parameters to initialize a Xgboost estimator
         :param num_round. The rounds we would like to iterate to train the model
         :param max_depth. The maximum depth of the classification boosting, need to be specified
-        :param num_class. The number of classes for the classifier
-        :param eta Step. Size shrinkage used in update to prevents overfitting
-        :param verbosity. Set to '1' or '0' to determine if print the information during training. True is higly recommended
+        :param eta. Step-size shrinkage used in update to prevents overfitting
+        :param verbosity. Set to 1 or 0 to determine if print the information during training
         :param objective_func. The objective function we would like to optimize
-        :param eval_metric. The loss metrix. Note this is partially correlated to the objective function, and unfit loss function would lead to problematic loss
-        :param booster. The booster to be usde, can be 'gbtree', 'gblinear' or 'dart'.
-        :param imbalance_alpha. The \alpha value for imbalanced loss. Will make impact on '1' classes. Must have when special_objective 'weighted'
-        :param focal_gamma. The \gamma value for focal loss. Must have when special_objective 'focal'
+        :param eval_metric. The loss metric. Note this is partially correlated to the objective function, and unfit loss function would lead to problematic loss
+        :param booster. The booster to be used, can be 'gbtree', 'gblinear' or 'dart'
+        :param imbalance_alpha. The \alpha value for imbalanced loss. Will make impact on '1' classes. Must have when special_objective 'weighted'. Will have no effect for other values of special_objective
+        :param focal_gamma. The \gamma value for focal loss. Must have when special_objective 'focal'. Will have no effect for other values of special_objective
+        :param verbose_eval. Verbosity for validation data. Default set to False
         """
         self.num_round = num_round
         self.max_depth = max_depth
@@ -59,11 +60,12 @@ class imbalance_xgboost(BaseEstimator, ClassifierMixin):
         self.eval_metric = eval_metric
         self.booster = booster
         self.eval_list = []
-        self.boosting_model = 0
+        self.boosting_model = None
         self.special_objective = special_objective
         self.early_stopping_rounds = early_stopping_rounds
         self.imbalance_alpha = imbalance_alpha
         self.focal_gamma = focal_gamma
+        self.verbose_eval = verbose_eval
 
     def fit(self, data_x, data_y):
         if self.special_objective is None:
@@ -89,15 +91,11 @@ class imbalance_xgboost(BaseEstimator, ClassifierMixin):
         # data_x is in [nData*nDim]
         nData = data_x.shape[0]
         nDim = data_x.shape[1]
-        # split the data into train and validation
-        holistic_ind = np.random.permutation(nData)
-        train_ind = holistic_ind[0:nData * 3 // 4]
-        valid_ind = holistic_ind[nData * 3 // 4:nData]
-        # indexing and get the data
-        train_data = data_x[train_ind]
-        train_label = data_y[train_ind]
-        valid_data = data_x[valid_ind]
-        valid_label = data_y[valid_ind]
+
+        # stratified splitting the data into train and validation
+        train_data, valid_data, train_label, valid_label = train_test_split(data_x, data_y, shuffle=True, 
+                                                                            random_state=42, test_size=0.25, stratify=data_y)
+        
         # marixilize the data and train the estimator
         dtrain = xgb.DMatrix(train_data, label=train_label)
         dvalid = xgb.DMatrix(valid_data, label=valid_label)
@@ -114,7 +112,7 @@ class imbalance_xgboost(BaseEstimator, ClassifierMixin):
             # fit the classfifier
             self.boosting_model = xgb.train(self.para_dict, dtrain, self.num_round, self.eval_list,
                                             obj=weighted_loss_obj.weighted_binary_cross_entropy, feval=evalerror,
-                                            verbose_eval=False, early_stopping_rounds=self.early_stopping_rounds)
+                                            verbose_eval=self.verbose_eval, early_stopping_rounds=self.early_stopping_rounds)
         elif self.special_objective == 'focal':
             # if the gamma value is None then raise an error
             if self.focal_gamma is None:
@@ -123,7 +121,8 @@ class imbalance_xgboost(BaseEstimator, ClassifierMixin):
             focal_loss_obj = Focal_Binary_Loss(gamma_indct=self.focal_gamma)
             # fit the classfifier
             self.boosting_model = xgb.train(self.para_dict, dtrain, self.num_round, self.eval_list,
-                                            obj=focal_loss_obj.focal_binary_object, feval=evalerror, verbose_eval=False, early_stopping_rounds=self.early_stopping_rounds)
+                                            obj=focal_loss_obj.focal_binary_object, feval=evalerror, verbose_eval=self.verbose_eval, 
+                                            early_stopping_rounds=self.early_stopping_rounds)
         else:
             raise ValueError(
                 'The input special objective mode not recognized! Could only be \'weighted\' or \'focal\', but got ' + str(
