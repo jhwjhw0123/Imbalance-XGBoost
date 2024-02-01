@@ -119,24 +119,36 @@ $$y_i = \frac{1}{ 1 + \text{exp}(-z_i)} $$
 Below the two types of loss will be discussed respectively.
 ### 1. Weighted Imbalance (Cross-entropoy) Loss
 Let $\hat{y}$ denote the true labels. The weighted imbalance loss for 2-class data can be denoted as:
-$$L_{w} = -\sum_{i=1}^{m}(\alpha\hat{y}_{i}\log(y_{i}) + (1-\hat{y}_{i})\log(1-y_{i})$$
+
+$$ L_{w} = -\sum_{i=1}^m(\alpha\hat{y}_i\log(y_i) + (1-\hat{y}_i)\log(1-y_i)) $$
+
 where $\alpha$ is the 'imbalance factor'. If $\alpha$ is greater than 1, then we put extra loss on 'classifying 1 as 0'.<br />
 The gradient is:
+
 $$\frac{\partial L_{w}}{\partial z_{i}} = -\alpha^{\hat{y}_i}(\hat{y}_i -y_i)$$
+
 Moreover, the second order gradient correspond to
 $$\frac{\partial L_w^2}{\partial^{2} z_{i}} = \alpha^{\hat{y}_i}(1-y_i)(y_i)$$
 ### 2. Focal Loss
 According to [1], the focal loss can be denoted as 
-$$L_{f} =-\sum_{i=1}^m\hat{y}_i(1 - y_i)^\gamma \log(y_{i}) + (1 - \hat{y}_i)y^{\gamma}_{i}\log(1-y_{i})$$ 
+
+$$ L_{f} = - \sum_{i=1}^m \hat{y}_i (1 - y_i)^\gamma \log(1 - \hat{y}_i - (-1)^{\hat{y}_i}y_i) + (1 - \hat{y}_i) y^{\gamma}_i \log(1- y_i) $$
+
 The first order gradient is
-$$\frac{\partial L_{f}}{\partial z_i} = \gamma\left[(y_i + \hat{y}_i - 1) (\hat{y}_i + (-1)^{\hat{y}}y_{i})^{\gamma}\log(1 - \hat{y}_i - (-1)^{\hat{y}_i}y_{i}) \right] + (-1)^{\hat{y}_i}(\hat{y}_i + (-1)^{\hat{y}_i}y_{i})^{\gamma + 1}$$ 
+
+$$ \frac{\partial L_{f}}{\partial z_i} = 
+\gamma\left[(y_i + \hat{y}_i - 1) (\hat{y}_i + (-1)^{ \hat{y}_i}y_i)^\gamma \log(1 - \hat{y}_i - (-1)^{\hat{y}_i}y_i) \right] + (-1)^{\hat{y}_i}(\hat{y}_i +(-1)^{\hat{y}_i}y_i)^{\gamma + 1}
+$$
+
 To simplify the expression above, one can set the following short-hand variables:
-$$\begin{cases}
-\eta_1 &= y_{i}(1-y_{i})\\
-\eta_2 &= \hat{y}_i + (-1)^{\hat{y}_i}y_{i}\\
-\eta_3 &= y_i + \hat{y}_{i}-1\\
-\eta_4 &= 1 - \hat{y}_i - (-1)^{\hat{y}_i}y_i
-\end{cases} $$
+
+$$ \begin{cases}
+\eta_1 =  y_i(1-y_i) \\
+\eta_2 = \hat{y}_i + (-1)^{\hat{y}_i}y_i\\
+\eta_3 = y_i + \hat{y}_i - 1 \\
+\eta_4 = 1 - \hat{y}_i - (-1)^{\hat{y}_i}y_i
+\end{cases}$$
+
 Using the above notations, the 1-st order derivative can be written as 
 $$\frac{\partial L_f}{\partial z_i} = \gamma\eta_3\eta_2^\gamma \log(\eta_4) + (-1)^{\hat{y}_i}\eta_2^{\gamma + 1}$$ 
 Finally, the 2-nd order derivative is
